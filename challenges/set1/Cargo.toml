@@ -1,0 +1,12 @@
+[package]
+name = "set1"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+hex = {path = "../../packages/hex"}
+naivebase64 = {path = "../../packages/naivebase64"}
+enscoring = {path = "../../packages/enscoring"}
+common = {path = "../../packages/common"}

@@ -79,6 +79,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "enscoring"
+version = "0.1.0"
+
+[[package]]
 name = "errno"
 version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -238,6 +242,16 @@ dependencies = [
  "libc",
  "linux-raw-sys",
  "windows-sys",
+]
+
+[[package]]
+name = "set1"
+version = "0.1.0"
+dependencies = [
+ "common",
+ "enscoring",
+ "hex 0.1.0",
+ "naivebase64",
 ]
 
 [[package]]

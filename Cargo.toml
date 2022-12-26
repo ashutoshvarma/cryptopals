@@ -3,5 +3,7 @@ members = [
     "packages/cli",
     "packages/common",
     "packages/hex",
-    "packages/naivebase64"
+    "packages/naivebase64",
+    "packages/enscoring",
+    "challenges/set1"
 ]

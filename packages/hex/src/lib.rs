@@ -2,6 +2,17 @@ use core::result::Result as _Result;
 use std::fmt::Display;
 use thiserror::Error;
 
+pub mod xor;
+
+pub fn decode<T: AsRef<[u8]>>(v: T) -> Result<Hex> {
+    unpacked_u8_slice_to_hex(v.as_ref())
+}
+
+pub fn encode<T: AsRef<[u8]>>(v: T) -> Result<String> {
+    let points = hex_to_codepoints(v)?;
+    Ok(String::from_utf8(points)?)
+}
+
 pub type Result<T> = _Result<T, Error>;
 
 #[derive(Debug, Error)]
@@ -14,6 +25,12 @@ pub enum Error {
 
     #[error("Odd length, hex should be even in length")]
     OddLength,
+
+    #[error(transparent)]
+    FromUtf8Error {
+        #[from]
+        source: std::string::FromUtf8Error,
+    },
 }
 
 // resultant hex is unpacked, one u8 per hex point
@@ -30,7 +47,7 @@ fn char_to_hex_point(c: u8, idx: usize) -> Result<u8> {
 fn hex_point_to_hex_char(c: u8, idx: usize) -> Result<u8> {
     match c {
         0..=9 => Ok(c + 48),
-        10..=15 => Ok(c + 65 - 10),
+        10..=15 => Ok(c + 97 - 10),
         _ => Err(Error::InvalidHexCodePoint { idx, val: c }.into()),
     }
 }
@@ -46,9 +63,9 @@ fn unpacked_u8_slice_to_hex(value: &[u8]) -> Result<Hex> {
 }
 
 // unpack the hex, to one u8 per hex codepoint
-fn hex_to_codepoints(value: &Hex) -> Result<Vec<u8>> {
+fn hex_to_codepoints<T: AsRef<[u8]>>(value: T) -> Result<Vec<u8>> {
     value
-        .0
+        .as_ref()
         .iter()
         .enumerate()
         .flat_map(|(idx, &v)| {
@@ -62,18 +79,30 @@ fn hex_to_codepoints(value: &Hex) -> Result<Vec<u8>> {
         .collect()
 }
 
-pub fn to_hex<T: AsRef<[u8]>>(v: T) -> Result<Hex> {
-    unpacked_u8_slice_to_hex(v.as_ref())
-}
-
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Hex(Vec<u8>);
+
+impl Hex {
+    pub fn data(&self) -> &[u8] {
+        &self.0
+    }
+
+    pub fn xor_by_char(&mut self, c: char) -> &mut Self {
+        self.0 = self.as_ref().iter().map(|i| i ^ c as u8).collect();
+        self
+    }
+}
 
 impl Display for Hex {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let points = hex_to_codepoints(&self).map_err(|_| std::fmt::Error)?;
-        let hex_str = String::from_utf8(points).map_err(|_| std::fmt::Error)?;
+        let hex_str = encode(&self.0).map_err(|_| std::fmt::Error)?;
         write!(f, "{}", hex_str)
+    }
+}
+
+impl AsRef<[u8]> for Hex {
+    fn as_ref(&self) -> &[u8] {
+        &self.0
     }
 }
 
