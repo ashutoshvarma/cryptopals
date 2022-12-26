@@ -79,8 +79,8 @@ fn hex_to_codepoints<T: AsRef<[u8]>>(value: T) -> Result<Vec<u8>> {
         .collect()
 }
 
-#[derive(Debug, Clone)]
-pub struct Hex(Vec<u8>);
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub struct Hex(pub Vec<u8>);
 
 impl Hex {
     pub fn data(&self) -> &[u8] {
