@@ -4,3 +4,5 @@ mod c1;
 mod c2;
 #[cfg(test)]
 mod c3;
+#[cfg(test)]
+mod c4;

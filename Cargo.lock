@@ -81,6 +81,9 @@ dependencies = [
 [[package]]
 name = "enscoring"
 version = "0.1.0"
+dependencies = [
+ "once_cell",
+]
 
 [[package]]
 name = "errno"
@@ -123,6 +126,7 @@ name = "hex"
 version = "0.1.0"
 dependencies = [
  "common",
+ "enscoring",
  "hex 0.4.3",
  "thiserror",
 ]
