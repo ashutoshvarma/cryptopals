@@ -10,3 +10,4 @@ hex = {path = "../../packages/hex"}
 naivebase64 = {path = "../../packages/naivebase64"}
 enscoring = {path = "../../packages/enscoring"}
 common = {path = "../../packages/common"}
+anyhow = "1.0"

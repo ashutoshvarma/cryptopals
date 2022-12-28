@@ -8,3 +8,5 @@ mod c3;
 mod c4;
 #[cfg(test)]
 mod c5;
+#[cfg(test)]
+mod c6;

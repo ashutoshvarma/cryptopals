@@ -86,11 +86,6 @@ impl Hex {
     pub fn data(&self) -> &[u8] {
         &self.0
     }
-
-    pub fn xor_by_char(&mut self, c: char) -> &mut Self {
-        self.0 = self.as_ref().iter().map(|i| i ^ c as u8).collect();
-        self
-    }
 }
 
 impl Display for Hex {
