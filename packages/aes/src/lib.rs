@@ -135,8 +135,8 @@ impl<const NK: usize, const NR: usize> Aes<NK, NR> {
 
     fn sub_bytes(block: &mut [u8; 16]) {
         for i in 0..16 {
-            let r = block[i] >> 4;
-            let c = block[i] & 15;
+            let r = block[i].to_le() & 15;
+            let c = block[i].to_le() >> 4;
             block[i] = SBOX_TABLE[(r + 16 * c) as usize];
         }
     }
@@ -222,8 +222,17 @@ mod test {
     #[test]
     fn test_sub_bytes() {
         let mut block = [53_u8; 16];
+        Aes::<4, 10>::sub_bytes(&mut block);
+        assert_eq!(block, [150; 16]);
+
+        // let mut block = "00102030405060708090a0b0c0d0e0f0".to_hex().unwrap();
+        let binding = "00102030405060708090a0b0c0d0e0f0".to_hex().unwrap();
+        let mut block = *to_arr::<u8, 16>(binding.data(), 0..16).unwrap();
         Aes::<4, 4>::sub_bytes(&mut block);
-        assert_eq!(block, [237; 16]);
+        assert_eq!(
+            "63cab7040953d051cd60e0e7ba70e18c",
+            hex::encode(block).unwrap()
+        );
     }
 
     #[test]
