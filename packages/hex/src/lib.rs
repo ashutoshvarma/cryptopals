@@ -1,19 +1,18 @@
-use core::result::Result as _Result;
 use std::fmt::Display;
 use thiserror::Error;
 
 pub mod xor;
 
-pub fn decode<T: AsRef<[u8]>>(v: T) -> Result<Hex> {
+pub fn decode<T: AsRef<[u8]>>(v: T) -> HexResult<Hex> {
     unpacked_u8_slice_to_hex(v.as_ref())
 }
 
-pub fn encode<T: AsRef<[u8]>>(v: T) -> Result<String> {
+pub fn encode<T: AsRef<[u8]>>(v: T) -> HexResult<String> {
     let points = hex_to_codepoints(v)?;
     Ok(String::from_utf8(points)?)
 }
 
-pub type Result<T> = _Result<T, Error>;
+pub type HexResult<T> = anyhow::Result<T, Error>;
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -34,7 +33,7 @@ pub enum Error {
 }
 
 // resultant hex is unpacked, one u8 per hex point
-fn char_to_hex_point(c: u8, idx: usize) -> Result<u8> {
+fn char_to_hex_point(c: u8, idx: usize) -> HexResult<u8> {
     match c {
         b'0'..=b'9' => Ok(c - 48),
         b'A'..=b'F' => Ok(c - 65 + 10),
@@ -44,7 +43,7 @@ fn char_to_hex_point(c: u8, idx: usize) -> Result<u8> {
 }
 
 // hex point is unpacked, means one hex per u8
-fn hex_point_to_hex_char(c: u8, idx: usize) -> Result<u8> {
+fn hex_point_to_hex_char(c: u8, idx: usize) -> HexResult<u8> {
     match c {
         0..=9 => Ok(c + 48),
         10..=15 => Ok(c + 97 - 10),
@@ -52,18 +51,18 @@ fn hex_point_to_hex_char(c: u8, idx: usize) -> Result<u8> {
     }
 }
 
-fn unpacked_u8_slice_to_hex(value: &[u8]) -> Result<Hex> {
+fn unpacked_u8_slice_to_hex(value: &[u8]) -> HexResult<Hex> {
     Ok(Hex(value
         .chunks(2)
         .enumerate()
         .map(|(idx, v)| {
             Ok((char_to_hex_point(v[0], idx * 2)? << 4) + (char_to_hex_point(v[1], idx * 2)?))
         })
-        .collect::<Result<Vec<u8>>>()?))
+        .collect::<HexResult<Vec<u8>>>()?))
 }
 
 // unpack the hex, to one u8 per hex codepoint
-fn hex_to_codepoints<T: AsRef<[u8]>>(value: T) -> Result<Vec<u8>> {
+fn hex_to_codepoints<T: AsRef<[u8]>>(value: T) -> HexResult<Vec<u8>> {
     value
         .as_ref()
         .iter()
@@ -77,6 +76,16 @@ fn hex_to_codepoints<T: AsRef<[u8]>>(value: T) -> Result<Vec<u8>> {
             ]
         })
         .collect()
+}
+
+pub trait ToHex<T> {
+    fn to_hex(&self) -> HexResult<Hex>;
+}
+
+impl<T> ToHex<T> for T where T: AsRef<[u8]> {
+    fn to_hex(&self) -> HexResult<Hex> {
+        decode(self.as_ref())
+    }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -104,7 +113,7 @@ impl AsRef<[u8]> for Hex {
 impl TryFrom<&[u8]> for Hex {
     type Error = Error;
 
-    fn try_from(value: &[u8]) -> Result<Self> {
+    fn try_from(value: &[u8]) -> HexResult<Self> {
         if value.len() % 2 != 0 {
             Err(Error::OddLength)
         } else {
@@ -116,7 +125,7 @@ impl TryFrom<&[u8]> for Hex {
 impl TryFrom<&str> for Hex {
     type Error = Error;
 
-    fn try_from(value: &str) -> Result<Self> {
+    fn try_from(value: &str) -> HexResult<Self> {
         if value.len() % 2 != 0 {
             Err(Error::OddLength)
         } else {
@@ -128,7 +137,7 @@ impl TryFrom<&str> for Hex {
 impl TryFrom<String> for Hex {
     type Error = Error;
 
-    fn try_from(value: String) -> Result<Self> {
+    fn try_from(value: String) -> HexResult<Self> {
         Hex::try_from(value.as_str())
     }
 }
