@@ -102,9 +102,7 @@ dependencies = [
 name = "cli"
 version = "0.1.0"
 dependencies = [
- "aes 0.1.0",
  "clap",
- "hex 0.1.0",
 ]
 
 [[package]]
@@ -191,7 +189,7 @@ dependencies = [
 name = "hex"
 version = "0.1.0"
 dependencies = [
- "common",
+ "anyhow",
  "enscoring",
  "hex 0.4.3",
  "thiserror",
