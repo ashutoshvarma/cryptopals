@@ -12,6 +12,42 @@ pub fn encode<T: AsRef<[u8]>>(v: T) -> HexResult<String> {
     Ok(String::from_utf8(points)?)
 }
 
+pub fn encode_with_break<T: AsRef<[u8]>>(v: T, n: usize) -> HexResult<String> {
+    let points = hex_to_codepoints(v)?;
+    Ok(String::from_utf8(points)?
+        .chars()
+        .enumerate()
+        .flat_map(|(i, c)| {
+            if i != 0 && i % n == 0 {
+                Some('\n')
+            } else {
+                None
+            }
+            .into_iter()
+            .chain(std::iter::once(c))
+        })
+        .collect::<String>())
+}
+
+pub fn encode_with_break_space<T: AsRef<[u8]>>(v: T, n: usize) -> HexResult<String> {
+    let points = hex_to_codepoints(v)?;
+    Ok(String::from_utf8(points)?
+        .chars()
+        .enumerate()
+        .flat_map(|(i, c)| {
+            if i != 0 && i % n == 0 {
+                Some('\n')
+            } else if i != 0 && i % 2 == 0 {
+                Some(' ')
+            } else {
+                None
+            }
+            .into_iter()
+            .chain(std::iter::once(c))
+        })
+        .collect::<String>())
+}
+
 pub type HexResult<T> = anyhow::Result<T, Error>;
 
 #[derive(Debug, Error)]
@@ -82,7 +118,10 @@ pub trait ToHex<T> {
     fn to_hex(&self) -> HexResult<Hex>;
 }
 
-impl<T> ToHex<T> for T where T: AsRef<[u8]> {
+impl<T> ToHex<T> for T
+where
+    T: AsRef<[u8]>,
+{
     fn to_hex(&self) -> HexResult<Hex> {
         decode(self.as_ref())
     }
@@ -94,6 +133,15 @@ pub struct Hex(pub Vec<u8>);
 impl Hex {
     pub fn data(&self) -> &[u8] {
         &self.0
+    }
+}
+
+impl Hex {
+    pub fn encode<T: AsRef<[u8]>>(value: T) -> HexResult<String> {
+        encode(value)
+    }
+    pub fn encode_with_break<T: AsRef<[u8]>>(value: T, n: usize) -> HexResult<String> {
+        encode_with_break(value, n)
     }
 }
 
