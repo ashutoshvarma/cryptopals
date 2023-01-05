@@ -1,0 +1,38 @@
+# SubBytes
+sub_bytes
+d1876c0f79c4300ab45594add66ff41f
+----
+3e175076b61c04678dfc2295f6a8bfc0
+
+sub_bytes
+00102030405060708090a0b0c0d0e0f0
+----
+63cab7040953d051cd60e0e7ba70e18c
+
+# ShiftRows
+shift_rows
+63cab7040953d051cd60e0e7ba70e18c
+----
+6353e08c0960e104cd70b751bacad0e7
+
+shift_rows
+e847f56514dadde23f77b64fe7f7d490
+----
+e8dab6901477d4653ff7f5e2e747dd4f
+
+# MixCol
+mix_col
+6353e08c0960e104cd70b751bacad0e7
+----
+5f72641557f5bc92f7be3b291db9f91a
+
+mix_col
+3e1c22c0b6fcbf768da85067f6170495
+----
+baa03de7a1f9b56ed5512cba5f414d23
+
+# AddRoundKey
+add_round_key key=13111d7fe3944a17f307a78b4d2b30c5
+7ad5fda789ef4e272bca100b3d9ff59f
+----
+69c4e0d86a7b0430d8cdb78070b4c55a

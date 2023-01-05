@@ -1,7 +1,6 @@
 use std::ops::BitXor;
 
 use enscoring::TextMetric;
-use hex::Hex;
 
 pub fn xor_slice_by_char<T, U, K>(value: U, xor_key: K) -> Vec<T>
 where

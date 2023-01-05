@@ -1,0 +1,170 @@
+# 128-bit Keys
+key_expansion
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+----
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+62 63 63 63 62 63 63 63 62 63 63 63 62 63 63 63
+9b 98 98 c9 f9 fb fb aa 9b 98 98 c9 f9 fb fb aa
+90 97 34 50 69 6c cf fa f2 f4 57 33 0b 0f ac 99
+ee 06 da 7b 87 6a 15 81 75 9e 42 b2 7e 91 ee 2b
+7f 2e 2b 88 f8 44 3e 09 8d da 7c bb f3 4b 92 90
+ec 61 4b 85 14 25 75 8c 99 ff 09 37 6a b4 9b a7
+21 75 17 87 35 50 62 0b ac af 6b 3c c6 1b f0 9b
+0e f9 03 33 3b a9 61 38 97 06 0a 04 51 1d fa 9f
+b1 d4 d8 e2 8a 7d b9 da 1d 7b b3 de 4c 66 49 41
+b4 ef 5b cb 3e 92 e2 11 23 e9 51 cf 6f 8f 18 8e
+
+key_expansion
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+----
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+e8 e9 e9 e9 17 16 16 16 e8 e9 e9 e9 17 16 16 16
+ad ae ae 19 ba b8 b8 0f 52 51 51 e6 45 47 47 f0
+09 0e 22 77 b3 b6 9a 78 e1 e7 cb 9e a4 a0 8c 6e
+e1 6a bd 3e 52 dc 27 46 b3 3b ec d8 17 9b 60 b6
+e5 ba f3 ce b7 66 d4 88 04 5d 38 50 13 c6 58 e6
+71 d0 7d b3 c6 b6 a9 3b c2 eb 91 6b d1 2d c9 8d
+e9 0d 20 8d 2f bb 89 b6 ed 50 18 dd 3c 7d d1 50
+96 33 73 66 b9 88 fa d0 54 d8 e2 0d 68 a5 33 5d
+8b f0 3f 23 32 78 c5 f3 66 a0 27 fe 0e 05 14 a3
+d6 0a 35 88 e4 72 f0 7b 82 d2 d7 85 8c d7 c3 26
+
+key_expansion
+00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f
+----
+00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f
+d6 aa 74 fd d2 af 72 fa da a6 78 f1 d6 ab 76 fe
+b6 92 cf 0b 64 3d bd f1 be 9b c5 00 68 30 b3 fe
+b6 ff 74 4e d2 c2 c9 bf 6c 59 0c bf 04 69 bf 41
+47 f7 f7 bc 95 35 3e 03 f9 6c 32 bc fd 05 8d fd
+3c aa a3 e8 a9 9f 9d eb 50 f3 af 57 ad f6 22 aa
+5e 39 0f 7d f7 a6 92 96 a7 55 3d c1 0a a3 1f 6b
+14 f9 70 1a e3 5f e2 8c 44 0a df 4d 4e a9 c0 26
+47 43 87 35 a4 1c 65 b9 e0 16 ba f4 ae bf 7a d2
+54 99 32 d1 f0 85 57 68 10 93 ed 9c be 2c 97 4e
+13 11 1d 7f e3 94 4a 17 f3 07 a7 8b 4d 2b 30 c5
+
+key_expansion
+49 20 e2 99 a5 20 52 61 64 69 6f 47 61 74 75 6e
+----
+49 20 e2 99 a5 20 52 61 64 69 6f 47 61 74 75 6e
+da bd 7d 76 7f 9d 2f 17 1b f4 40 50 7a 80 35 3e
+15 2b cf ac 6a b6 e0 bb 71 42 a0 eb 0b c2 95 d5
+34 01 cc 87 5e b7 2c 3c 2f f5 8c d7 24 37 19 02
+a6 d5 bb b1 f8 62 97 8d d7 97 1b 5a f3 a0 02 58
+56 a2 d1 bc ae c0 46 31 79 57 5d 6b 8a f7 5f 33
+1e 6d 12 c2 b0 ad 54 f3 c9 fa 09 98 43 0d 56 ab
+89 dc 70 d8 39 71 24 2b f0 8b 2d b3 b3 86 7b 18
+4d fd dd b5 74 8c f9 9e 84 07 d4 2d 37 81 af 35
+5a 84 4b 2f 2e 08 b2 b1 aa 0f 66 9c 9d 8e c9 a9
+75 59 98 71 5b 51 2a c0 f1 5e 4c 5c 6c d0 85 f5
+
+# 192-bit keys
+key_expansion
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+----
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 62 63 63 63 62 63 63 63
+62 63 63 63 62 63 63 63 62 63 63 63 62 63 63 63
+9b 98 98 c9 f9 fb fb aa 9b 98 98 c9 f9 fb fb aa
+9b 98 98 c9 f9 fb fb aa 90 97 34 50 69 6c cf fa
+f2 f4 57 33 0b 0f ac 99 90 97 34 50 69 6c cf fa
+c8 1d 19 a9 a1 71 d6 53 53 85 81 60 58 8a 2d f9
+c8 1d 19 a9 a1 71 d6 53 7b eb f4 9b da 9a 22 c8
+89 1f a3 a8 d1 95 8e 51 19 88 97 f8 b8 f9 41 ab
+c2 68 96 f7 18 f2 b4 3f 91 ed 17 97 40 78 99 c6
+59 f0 0e 3e e1 09 4f 95 83 ec bc 0f 9b 1e 08 30
+0a f3 1f a7 4a 8b 86 61 13 7b 88 5f f2 72 c7 ca
+43 2a c8 86 d8 34 c0 b6 d2 c7 df 11 98 4c 59 70
+
+key_expansion
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+----
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff e8 e9 e9 e9 17 16 16 16
+e8 e9 e9 e9 17 16 16 16 e8 e9 e9 e9 17 16 16 16
+ad ae ae 19 ba b8 b8 0f 52 51 51 e6 45 47 47 f0
+ad ae ae 19 ba b8 b8 0f c5 c2 d8 ed 7f 7a 60 e2
+2d 2b 31 04 68 6c 76 f4 c5 c2 d8 ed 7f 7a 60 e2
+17 12 40 3f 68 68 20 dd 45 43 11 d9 2d 2f 67 2d
+e8 ed bf c0 97 97 df 22 8f 8c d3 b7 e7 e4 f3 6a
+a2 a7 e2 b3 8f 88 85 9e 67 65 3a 5e f0 f2 e5 7c
+26 55 c3 3b c1 b1 30 51 63 16 d2 e2 ec 9e 57 7c
+8b fb 6d 22 7b 09 88 5e 67 91 9b 1a a6 20 ab 4b
+c5 36 79 a9 29 a8 2e d5 a2 53 43 f7 d9 5a cb a9
+59 8e 48 2f ff ae e3 64 3a 98 9a cd 13 30 b4 18
+
+key_expansion
+00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 10 11 12 13 14 15 16 17
+----
+00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f
+10 11 12 13 14 15 16 17 58 46 f2 f9 5c 43 f4 fe
+54 4a fe f5 58 47 f0 fa 48 56 e2 e9 5c 43 f4 fe
+40 f9 49 b3 1c ba bd 4d 48 f0 43 b8 10 b7 b3 42
+58 e1 51 ab 04 a2 a5 55 7e ff b5 41 62 45 08 0c
+2a b5 4b b4 3a 02 f8 f6 62 e3 a9 5d 66 41 0c 08
+f5 01 85 72 97 44 8d 7e bd f1 c6 ca 87 f3 3e 3c
+e5 10 97 61 83 51 9b 69 34 15 7c 9e a3 51 f1 e0
+1e a0 37 2a 99 53 09 16 7c 43 9e 77 ff 12 05 1e
+dd 7e 0e 88 7e 2f ff 68 60 8f c8 42 f9 dc c1 54
+85 9f 5f 23 7a 8d 5a 3d c0 c0 29 52 be ef d6 3a
+de 60 1e 78 27 bc df 2c a2 23 80 0f d8 ae da 32
+a4 97 0a 33 1a 78 dc 09 c4 18 c2 71 e3 a4 1d 5d
+
+# 256-bit key
+key_expansion
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+----
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+62 63 63 63 62 63 63 63 62 63 63 63 62 63 63 63
+aa fb fb fb aa fb fb fb aa fb fb fb aa fb fb fb
+6f 6c 6c cf 0d 0f 0f ac 6f 6c 6c cf 0d 0f 0f ac
+7d 8d 8d 6a d7 76 76 91 7d 8d 8d 6a d7 76 76 91
+53 54 ed c1 5e 5b e2 6d 31 37 8e a2 3c 38 81 0e
+96 8a 81 c1 41 fc f7 50 3c 71 7a 3a eb 07 0c ab
+9e aa 8f 28 c0 f1 6d 45 f1 c6 e3 e7 cd fe 62 e9
+2b 31 2b df 6a cd dc 8f 56 bc a6 b5 bd bb aa 1e
+64 06 fd 52 a4 f7 90 17 55 31 73 f0 98 cf 11 19
+6d bb a9 0b 07 76 75 84 51 ca d3 31 ec 71 79 2f
+e7 b0 e8 9c 43 47 78 8b 16 76 0b 7b 8e b9 1a 62
+74 ed 0b a1 73 9b 7e 25 22 51 ad 14 ce 20 d4 3b
+10 f8 0a 17 53 bf 72 9c 45 c9 79 e7 cb 70 63 85
+
+key_expansion
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+----
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+e8 e9 e9 e9 17 16 16 16 e8 e9 e9 e9 17 16 16 16
+0f b8 b8 b8 f0 47 47 47 0f b8 b8 b8 f0 47 47 47
+4a 49 49 65 5d 5f 5f 73 b5 b6 b6 9a a2 a0 a0 8c
+35 58 58 dc c5 1f 1f 9b ca a7 a7 23 3a e0 e0 64
+af a8 0a e5 f2 f7 55 96 47 41 e3 0c e5 e1 43 80
+ec a0 42 11 29 bf 5d 8a e3 18 fa a9 d9 f8 1a cd
+e6 0a b7 d0 14 fd e2 46 53 bc 01 4a b6 5d 42 ca
+a2 ec 6e 65 8b 53 33 ef 68 4b c9 46 b1 b3 d3 8b
+9b 6c 8a 18 8f 91 68 5e dc 2d 69 14 6a 70 2b de
+a0 bd 9f 78 2b ee ac 97 43 a5 65 d1 f2 16 b6 5a
+fc 22 34 91 73 b3 5c cf af 9e 35 db c5 ee 1e 05
+06 95 ed 13 2d 7b 41 84 6e de 24 55 9c c8 92 0f
+54 6d 42 4f 27 de 1e 80 88 40 2b 5b 4d ae 35 5e
+
+key_expansion
+00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f
+----
+00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f
+10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f
+a5 73 c2 9f a1 76 c4 98 a9 7f ce 93 a5 72 c0 9c
+16 51 a8 cd 02 44 be da 1a 5d a4 c1 06 40 ba de
+ae 87 df f0 0f f1 1b 68 a6 8e d5 fb 03 fc 15 67
+6d e1 f1 48 6f a5 4f 92 75 f8 eb 53 73 b8 51 8d
+c6 56 82 7f c9 a7 99 17 6f 29 4c ec 6c d5 59 8b
+3d e2 3a 75 52 47 75 e7 27 bf 9e b4 54 07 cf 39
+0b dc 90 5f c2 7b 09 48 ad 52 45 a4 c1 87 1c 2f
+45 f5 a6 60 17 b2 d3 87 30 0d 4d 33 64 0a 82 0a
+7c cf f7 1c be b4 fe 54 13 e6 bb f0 d2 61 a7 df
+f0 1a fa fe e7 a8 29 79 d7 a5 64 4a b3 af e6 40
+25 41 fe 71 9b f5 00 25 88 13 bb d5 5a 72 1c 0a
+4e 5a 66 99 a9 f2 4f e0 7e 57 2b aa cd f8 cd ea
+24 fc 79 cc bf 09 79 e9 37 1a c2 3c 6d 68 de 36
