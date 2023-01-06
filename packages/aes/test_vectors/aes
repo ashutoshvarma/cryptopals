@@ -1,0 +1,17 @@
+# 128-bit Keys
+aes_ecb key=000102030405060708090a0b0c0d0e0f
+randomshitoninternetissometimemoreawsesomethanany
+----
+randomshitoninternetissometimemoreawsesomethanany
+
+# 192-bit Keys
+aes_ecb key=000102030405060708090a0b0c0d0e0f1011121314151617
+randomshitoninternetissometimemoreawsesomethanany
+----
+randomshitoninternetissometimemoreawsesomethanany
+
+# 256-bit Keys
+aes_ecb key=000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f
+randomshitoninternetissometimemoreawsesomethanany
+----
+randomshitoninternetissometimemoreawsesomethanany

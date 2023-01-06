@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+anyhow = "1.0"
 
 
 [dev-dependencies]
@@ -13,4 +14,3 @@ hex = { path = "../hex" }
 aes = "0.8"
 # datadriven = "0.6"
 datadriven = { git = "https://github.com/ashutoshvarma/datadriven" }
-anyhow = "1.0"
