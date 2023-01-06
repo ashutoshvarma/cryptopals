@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 hex = {path = "../../packages/hex"}
+aes = {path = "../../packages/aes"}
 naivebase64 = {path = "../../packages/naivebase64"}
 enscoring = {path = "../../packages/enscoring"}
 common = {path = "../../packages/common"}
