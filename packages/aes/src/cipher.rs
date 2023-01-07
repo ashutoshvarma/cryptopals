@@ -1,7 +1,6 @@
 use crate::galios_tables::{GMUL_11, GMUL_13, GMUL_14, GMUL_2, GMUL_3, GMUL_9};
 use crate::sbox::{INV_SBOX_TABLE, SBOX_TABLE};
 
-
 pub struct AesCipher<const NK: usize, const NR: usize, const K: usize, const E: usize>;
 
 static RCON_RC: [u8; 10] = [1, 2, 4, 8, 16, 32, 64, 128, 27, 54];
@@ -22,7 +21,7 @@ pub fn to_arr<'a, T, const N: usize>(
 ) -> Result<&'a [T; N], <&'a [T] as TryInto<&'a [T; N]>>::Error>
 where
     &'a [T]: TryInto<&'a [T; N]> + 'a,
-    T: Copy,
+    // T: Copy,
 {
     slice.try_into()
 }

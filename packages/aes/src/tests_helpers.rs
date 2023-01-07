@@ -135,7 +135,7 @@ impl TryFrom<TestCase> for Directive {
     fn try_from(case: TestCase) -> Result<Self, Self::Error> {
         match case.directive.as_str() {
             "aes_ecb" => {
-                let plain_text = remove_whitespace(&case.input).to_hex()?;
+                let plain_text = remove_whitespace(&case.input).as_bytes().to_vec();
                 let key = remove_whitespace(
                     case.args
                         .get("key")
@@ -146,7 +146,7 @@ impl TryFrom<TestCase> for Directive {
                         .ok_or(anyhow::anyhow!("key is empty"))?,
                 )
                 .to_hex()?;
-                Ok(Self::Aes { key, plain_text })
+                Ok(Self::Aes { key, plain_text: Hex(plain_text) })
             }
             "key_expansion" => {
                 let key = remove_whitespace(&case.input).to_hex()?;
