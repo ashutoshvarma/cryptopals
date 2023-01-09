@@ -1,137 +1,105 @@
-use crate::galios_tables::{GMUL_11, GMUL_13, GMUL_14, GMUL_2, GMUL_3, GMUL_9};
-use crate::sbox::{INV_SBOX_TABLE, SBOX_TABLE};
+use crate::tables::{
+    GMUL_11, GMUL_13, GMUL_14, GMUL_2, GMUL_3, GMUL_9, INV_SBOX_TABLE, RCON_RC, SBOX_TABLE,
+};
+use crate::utils::word4;
 
-pub struct AesCipher<const NK: usize, const NR: usize, const K: usize, const E: usize>;
+pub trait BlockCipher<const B: usize> {
+    type Unit;
 
-static RCON_RC: [u8; 10] = [1, 2, 4, 8, 16, 32, 64, 128, 27, 54];
-
-pub fn to_arr_range<'a, T, const N: usize>(
-    slice: &'a [T],
-    range: std::ops::Range<usize>,
-) -> Result<&'a [T; N], <&'a [T] as TryInto<&'a [T; N]>>::Error>
-where
-    &'a [T]: TryInto<&'a [T; N]> + 'a,
-    T: Copy,
-{
-    slice[range].try_into()
+    fn cipher<T: AsRef<[u8]>>(block: [Self::Unit; B], key: T) -> [Self::Unit; B];
+    fn inv_cipher<T: AsRef<[u8]>>(block: [Self::Unit; B], key: T) -> [Self::Unit; B];
 }
 
-pub fn to_arr<'a, T, const N: usize>(
-    slice: &'a [T],
-) -> Result<&'a [T; N], <&'a [T] as TryInto<&'a [T; N]>>::Error>
-where
-    &'a [T]: TryInto<&'a [T; N]> + 'a,
-    // T: Copy,
-{
-    slice.try_into()
+impl<const NK: usize> BlockCipher<16> for AesCipher<NK> {
+    type Unit = u8;
+
+    fn cipher<T: AsRef<[u8]>>(mut block: [Self::Unit; 16], key: T) -> [Self::Unit; 16] {
+        let key_sch = Self::key_expansion(key);
+        Self::block_cipher(&mut block, key_sch);
+        block
+    }
+
+    fn inv_cipher<T: AsRef<[u8]>>(mut block: [Self::Unit; 16], key: T) -> [Self::Unit; 16] {
+        let key_sch = Self::key_expansion(key);
+        Self::block_inv_cipher(&mut block, key_sch);
+        block
+    }
 }
 
-// fn word<'a, T>(
-//     slice: &'a [T],
-//     word_idx: usize,
-// ) -> Result<&'a [T; 4], <&'a [T] as TryInto<&'a [T; 4]>>::Error>
-// where
-//     &'a [T]: TryInto<&'a [T; 4]> + 'a,
-//     T: Copy,
-// {
-//     to_arr_range(slice, (word_idx * 4)..(4 + word_idx * 4))
-//     // slice[(word_idx * 4)..(4 + word_idx * 4)].try_into()
-// }
+pub struct AesCipher<const K: usize>;
 
-fn word4<'a, T>(
-    slice: &'a [T],
-    word_idx: usize,
-) -> Result<&'a [T; 16], <&'a [T] as TryInto<&'a [T; 16]>>::Error>
-where
-    &'a [T]: TryInto<&'a [T; 16]> + 'a,
-    T: Copy,
-{
-    to_arr_range(slice, (word_idx * 4)..(16 + word_idx * 4))
-    // slice[(word_idx * 4)..(4 + word_idx * 4)].try_into()
-}
+impl<const K: usize> AesCipher<K> {
+    const NR: usize = match K {
+        128 => 10,
+        192 => 12,
+        256 => 14,
+        _ => panic!("Invalid Aes Key Length"),
+    };
+    const NK: usize = K / (4 * 8);
 
-fn sub_word(word: &mut [u8; 4]) {
-    word[0] = SBOX_TABLE[word[0] as usize];
-    word[1] = SBOX_TABLE[word[1] as usize];
-    word[2] = SBOX_TABLE[word[2] as usize];
-    word[3] = SBOX_TABLE[word[3] as usize];
-}
-
-fn rot_word(word: &mut [u8; 4]) {
-    // std::mem::swap(&mut word[0], &mut word[1]);
-    // std::mem::swap(&mut word[1], &mut word[2]);
-    // std::mem::swap(&mut word[2], &mut word[3]);
-
-    word.swap(0, 1);
-    word.swap(1, 2);
-    word.swap(2, 3);
-}
-
-impl<const NK: usize, const NR: usize, const K: usize, const E: usize> AesCipher<NK, NR, K, E> {
-    // K is the key size in bytes
-    // E is the Expanded Key buffers in bytes
-    pub(crate) fn key_expansion(key: &[u8; K]) -> [u8; E] {
+    pub(crate) fn key_expansion<T: AsRef<[u8]>>(key: T) -> Vec<u8> {
+        let key = key.as_ref();
         assert_eq!(
-            K / 4,
-            NK,
+            key.len() / 4,
+            Self::NK,
             "key_expansion: Key length K ({} bytes) should be Nk*4 bytes ({}).",
-            K,
-            NK * 4
+            key.len(),
+            Self::NK * 4
         );
-        assert_eq!(
-            E,
-            16 * (NR + 1),
-            "key_expansion: Expaned E({} bytes) should be equal to Nb(Nr + 1) words ({} bytes).",
-            E / 4,
-            16 * (NR + 1)
-        );
-        let mut expanded = [0; E];
+        // assert_eq!(
+        //     E,
+        //     16 * (NR + 1),
+        //     "key_expansion: Expaned E({} bytes) should be equal to Nb(Nr + 1) words ({} bytes).",
+        //     E / 4,
+        //     16 * (NR + 1)
+        // );
+        let mut expanded = vec![0; 16 * (Self::NR + 1)];
 
         // First NK words are equal to key.
-        for i in 0..K {
+        for i in 0..key.len() {
             expanded[i] = key[i];
         }
 
         // iter over WORDS (4 bytes)
-        for i in NK..(4 * (NR + 1)) {
+        for i in Self::NK..(4 * (Self::NR + 1)) {
             let mut temp = [
                 expanded[(i - 1) * 4 + 0],
                 expanded[(i - 1) * 4 + 1],
                 expanded[(i - 1) * 4 + 2],
                 expanded[(i - 1) * 4 + 3],
             ];
-            if i % NK == 0 {
+            if i % Self::NK == 0 {
                 rot_word(&mut temp);
                 sub_word(&mut temp);
                 // XOR by Rcon[i/NK] = XOR by [rc[i/NK], 0, 0, 0]
                 // dbg!((i, NK, i / NK + 0));
-                temp[0] ^= RCON_RC[(i / NK + 0) - 1];
+                temp[0] ^= RCON_RC[(i / Self::NK + 0) - 1];
                 temp[1] ^= 0;
                 temp[2] ^= 0;
                 temp[3] ^= 0;
-            } else if NK > 6 && i % NK == 4 {
+            } else if Self::NK > 6 && i % Self::NK == 4 {
                 sub_word(&mut temp);
             }
 
             // 1 WORD = 4 bytes
-            expanded[i * 4 + 0] = temp[0] ^ expanded[(i - NK) * 4 + 0];
-            expanded[i * 4 + 1] = temp[1] ^ expanded[(i - NK) * 4 + 1];
-            expanded[i * 4 + 2] = temp[2] ^ expanded[(i - NK) * 4 + 2];
-            expanded[i * 4 + 3] = temp[3] ^ expanded[(i - NK) * 4 + 3];
+            expanded[i * 4 + 0] = temp[0] ^ expanded[(i - Self::NK) * 4 + 0];
+            expanded[i * 4 + 1] = temp[1] ^ expanded[(i - Self::NK) * 4 + 1];
+            expanded[i * 4 + 2] = temp[2] ^ expanded[(i - Self::NK) * 4 + 2];
+            expanded[i * 4 + 3] = temp[3] ^ expanded[(i - Self::NK) * 4 + 3];
         }
 
         expanded
     }
 
-    pub(crate) fn cipher(block: &mut [u8; 16], round_keys: &[u8; E]) {
+    pub(crate) fn block_cipher(block: &mut [u8; 16], round_keys: Vec<u8>) {
         // println!("round[0].input = {}", hex::encode(&block).unwrap());
         // println!(
         //     "round[0].k_sch = {}",
         //     hex::encode(word4(round_keys, 0).unwrap()).unwrap()
         // );
-        Self::add_round_key(block, word4(round_keys, 0).unwrap());
+        Self::add_round_key(block, word4(&round_keys, 0).unwrap());
 
-        for r in 1..NR {
+        for r in 1..Self::NR {
             // println!("round[{r}].start = {}", hex::encode(&block).unwrap());
             Self::sub_bytes(block);
             // println!("round[{r}].s_box = {}", hex::encode(&block).unwrap());
@@ -139,7 +107,7 @@ impl<const NK: usize, const NR: usize, const K: usize, const E: usize> AesCipher
             // println!("round[{r}].s_row = {}", hex::encode(&block).unwrap());
             Self::mix_columns(block);
             // println!("round[{r}].m_col = {}", hex::encode(&block).unwrap());
-            Self::add_round_key(block, word4(round_keys, r * 4).unwrap());
+            Self::add_round_key(block, word4(&round_keys, r * 4).unwrap());
             // println!(
             //     "round[{r}].k_sch = {}",
             //     hex::encode(word4(round_keys, r * 4).unwrap()).unwrap()
@@ -151,7 +119,7 @@ impl<const NK: usize, const NR: usize, const K: usize, const E: usize> AesCipher
         // println!("round[{NR}].s_box = {}", hex::encode(&block).unwrap());
         Self::shift_rows(block);
         // println!("round[{NR}].s_row = {}", hex::encode(&block).unwrap());
-        Self::add_round_key(block, word4(round_keys, NR * 4).unwrap());
+        Self::add_round_key(block, word4(&round_keys, Self::NR * 4).unwrap());
         // println!(
         //     "round[{NR}].k_sch = {}",
         //     hex::encode(word4(round_keys, NR * 4).unwrap()).unwrap()
@@ -159,22 +127,22 @@ impl<const NK: usize, const NR: usize, const K: usize, const E: usize> AesCipher
         // println!("round[{NR}].output = {}", hex::encode(&block).unwrap());
     }
 
-    pub(crate) fn inv_cipher(block: &mut [u8; 16], round_keys: &[u8; E]) {
+    pub(crate) fn block_inv_cipher(block: &mut [u8; 16], round_keys: Vec<u8>) {
         // println!("round[0].iinput = {}", hex::encode(&block).unwrap());
         // println!(
         //     "round[0].ik_sch = {}",
         //     // hex::encode(round_keys).unwrap()
         //     hex::encode(word4(round_keys, NR * 4).unwrap()).unwrap()
         // );
-        Self::add_round_key(block, word4(round_keys, NR * 4).unwrap());
+        Self::add_round_key(block, word4(&round_keys, Self::NR * 4).unwrap());
 
-        for r in (1..NR).rev() {
+        for r in (1..Self::NR).rev() {
             // println!("round[{r}].istart = {}", hex::encode(&block).unwrap());
             Self::inv_shift_rows(block);
             // println!("round[{r}].is_row = {}", hex::encode(&block).unwrap());
             Self::inv_sub_bytes(block);
             // println!("round[{r}].is_box = {}", hex::encode(&block).unwrap());
-            Self::add_round_key(block, word4(round_keys, r * 4).unwrap());
+            Self::add_round_key(block, word4(&round_keys, r * 4).unwrap());
             // println!(
             //     "round[{r}].ik_sch = {}",
             //     hex::encode(word4(round_keys, r * 4).unwrap()).unwrap()
@@ -188,7 +156,7 @@ impl<const NK: usize, const NR: usize, const K: usize, const E: usize> AesCipher
         // println!("round[{NR}].is_row = {}", hex::encode(&block).unwrap());
         Self::inv_sub_bytes(block);
         // println!("round[{NR}].is_box = {}", hex::encode(&block).unwrap());
-        Self::add_round_key(block, word4(round_keys, 0).unwrap());
+        Self::add_round_key(block, word4(&round_keys, 0).unwrap());
         // println!(
         //     "round[{NR}].ik_sch = {}",
         //     hex::encode(word4(round_keys, 0).unwrap()).unwrap()
@@ -330,4 +298,21 @@ impl<const NK: usize, const NR: usize, const K: usize, const E: usize> AesCipher
             block[3 + c * 4] ^= round_key[3 + c * 4];
         }
     }
+}
+
+fn sub_word(word: &mut [u8; 4]) {
+    word[0] = SBOX_TABLE[word[0] as usize];
+    word[1] = SBOX_TABLE[word[1] as usize];
+    word[2] = SBOX_TABLE[word[2] as usize];
+    word[3] = SBOX_TABLE[word[3] as usize];
+}
+
+fn rot_word(word: &mut [u8; 4]) {
+    // std::mem::swap(&mut word[0], &mut word[1]);
+    // std::mem::swap(&mut word[1], &mut word[2]);
+    // std::mem::swap(&mut word[2], &mut word[3]);
+
+    word.swap(0, 1);
+    word.swap(1, 2);
+    word.swap(2, 3);
 }

@@ -1,202 +1,191 @@
-use crate::cipher::{to_arr, AesCipher};
+use std::marker::PhantomData;
 
-pub trait Modes {
+use crate::{cipher::BlockCipher, padding::CipherPadding, utils::to_arr};
+
+pub trait Modes<C: BlockCipher<B, Unit = u8>, const B: usize, D: CipherPadding> {
     // Assumes plain_text to be properly padded, otherwise panic
-    fn encrypt<
-        P: AsRef<[u8]>,
-        T: AsRef<[u8]>,
-        const NR: usize,
-        const NK: usize,
-        const K: usize,
-        const E: usize,
-    >(
+    fn encrypt<P: AsRef<[u8]>, T: AsRef<[u8]>>(
+        &self,
         plain_text: P,
         key: T,
-        _cipher: AesCipher<NR, NK, K, E>,
     ) -> anyhow::Result<Vec<u8>>;
 
     // Assumes cipher_text to be properly padded, otherwise panic
-    fn decrypt<
-        C: AsRef<[u8]>,
-        T: AsRef<[u8]>,
-        const NR: usize,
-        const NK: usize,
-        const K: usize,
-        const E: usize,
-    >(
-        cipher_text: C,
+    fn decrypt<U: AsRef<[u8]>, T: AsRef<[u8]>>(
+        &self,
+        cipher_text: U,
         key: T,
-        _cipher: AesCipher<NR, NK, K, E>,
     ) -> anyhow::Result<Vec<u8>>;
 }
 
-pub struct EcbMode;
+#[derive(Debug)]
+pub struct EcbMode<C: BlockCipher<B, Unit = u8>, const B: usize, D: CipherPadding> {
+    _marker_c: PhantomData<C>,
+    _marker_d: PhantomData<D>,
+}
 
-pub const CBC_IV: [u8; 16] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-pub struct CbcMode;
+impl<C: BlockCipher<B, Unit = u8>, const B: usize, D: CipherPadding> EcbMode<C, B, D> {
+    pub fn new() -> Self {
+        Self {
+            _marker_c: PhantomData,
+            _marker_d: PhantomData,
+        }
+    }
+}
 
-impl Modes for EcbMode {
-    fn encrypt<
-        P: AsRef<[u8]>,
-        T: AsRef<[u8]>,
-        const NR: usize,
-        const NK: usize,
-        const K: usize,
-        const E: usize,
-    >(
+#[derive(Debug)]
+pub struct CbcMode<C: BlockCipher<B, Unit = u8>, const B: usize, D: CipherPadding> {
+    iv: Vec<u8>,
+    _marker_c: PhantomData<C>,
+    _marker_d: PhantomData<D>,
+}
+
+impl<C: BlockCipher<B, Unit = u8>, const B: usize, D: CipherPadding> CbcMode<C, B, D> {
+    pub const DEFAULT_CBC_IV: [u8; B] = [0; B];
+    pub fn new() -> Self {
+        CbcMode {
+            iv: Self::DEFAULT_CBC_IV.to_vec(),
+            _marker_c: PhantomData,
+            _marker_d: PhantomData,
+        }
+    }
+
+    pub fn with_iv(iv: Vec<u8>) -> Self {
+        CbcMode {
+            iv,
+            _marker_c: PhantomData,
+            _marker_d: PhantomData,
+        }
+    }
+}
+
+impl<C: BlockCipher<B, Unit = u8>, const B: usize, D: CipherPadding> Modes<C, B, D>
+    for EcbMode<C, B, D>
+{
+    fn encrypt<P: AsRef<[u8]>, T: AsRef<[u8]>>(
+        &self,
         plain_text: P,
         key: T,
-        _cipher: AesCipher<NR, NK, K, E>,
     ) -> anyhow::Result<Vec<u8>> {
-        let key = to_arr(key.as_ref())?;
-        let key_sch = AesCipher::<NR, NK, K, E>::key_expansion(key);
-
-        let encrypted: Vec<u8> = plain_text
-            .as_ref()
-            .chunks_exact(16)
+        // add padding
+        let padded = D::add_pad::<B>(plain_text.as_ref().to_vec());
+        // apply cipher in ecb mode
+        let encrypted = padded
+            .chunks_exact(B)
             .flat_map(|chk| {
                 // safe to unwarp
                 // copy data here
-                let mut block = *to_arr(chk).unwrap();
-                AesCipher::<NR, NK, K, E>::cipher(&mut block, &key_sch);
-                block
+                let block = *to_arr(chk).unwrap();
+                C::cipher(block, key.as_ref())
             })
             .collect();
 
         Ok(encrypted)
     }
 
-    fn decrypt<
-        C: AsRef<[u8]>,
-        T: AsRef<[u8]>,
-        const NR: usize,
-        const NK: usize,
-        const K: usize,
-        const E: usize,
-    >(
-        cipher_text: C,
+    fn decrypt<U: AsRef<[u8]>, T: AsRef<[u8]>>(
+        &self,
+        cipher_text: U,
         key: T,
-        _cipher: AesCipher<NR, NK, K, E>,
     ) -> anyhow::Result<Vec<u8>> {
-        let key = to_arr(key.as_ref())?;
-        let key_sch = AesCipher::<NR, NK, K, E>::key_expansion(key);
-
         let decrypted: Vec<u8> = cipher_text
             .as_ref()
-            .chunks_exact(16)
+            .chunks_exact(B)
             .flat_map(|chk| {
                 // safe to unwarp
                 // copy data here
-                let mut block = *to_arr(chk).unwrap();
-                AesCipher::<NR, NK, K, E>::inv_cipher(&mut block, &key_sch);
-                block
+                let block = *to_arr(chk).unwrap();
+                C::inv_cipher(block, key.as_ref())
             })
             .collect();
 
-        Ok(decrypted)
+        // remove padding
+        Ok(D::remove_pad::<B>(decrypted))
     }
 }
 
-impl Modes for CbcMode {
-    fn encrypt<
-        P: AsRef<[u8]>,
-        T: AsRef<[u8]>,
-        const NR: usize,
-        const NK: usize,
-        const K: usize,
-        const E: usize,
-    >(
+impl<C: BlockCipher<B, Unit = u8>, const B: usize, D: CipherPadding> Modes<C, B, D>
+    for CbcMode<C, B, D>
+{
+    fn encrypt<P: AsRef<[u8]>, T: AsRef<[u8]>>(
+        &self,
         plain_text: P,
         key: T,
-        _cipher: AesCipher<NR, NK, K, E>,
     ) -> anyhow::Result<Vec<u8>> {
-        let key = to_arr(key.as_ref())?;
-        let key_sch = AesCipher::<NR, NK, K, E>::key_expansion(key);
-
-        let encrypted = [&CBC_IV, plain_text.as_ref()]
-            // add IV before the plain text
-            .concat()
+        // add padding
+        let padded = D::add_pad::<B>(plain_text.as_ref().to_vec());
+        let padded_len = padded.len();
+        let encrypted = padded
             // get chunks of block size
-            .chunks_exact(16)
-            .collect::<Vec<&[u8]>>()
-            // get window of 2 over chunks
-            .windows(2)
+            .chunks_exact(B)
             // apply cbc mode
-            .flat_map(|win| {
+            .fold(Vec::with_capacity(padded_len / B), |mut agg, p1| {
                 // CBC Encrypt
                 // C[i] = Cipher(P[i] ^ P[i-1])
 
-                let p0 = win[0];
-                let p1 = win[1];
+                let c0 = agg.last().unwrap_or(&self.iv);
                 // println!("p0                - {p0:?}");
                 // println!("p1                - {p1:?}");
 
                 // xor chunk (p0 ^ p1)
-                let xored = p0.iter().zip(p1).map(|(a, b)| a ^ b).collect::<Vec<_>>();
+                let xored = c0.iter().zip(p1).map(|(a, b)| a ^ b).collect::<Vec<_>>();
                 // println!("p0 ^ p1           - {xored:?}");
-                let mut block = *to_arr(&xored).unwrap();
-                // apply cipher
-                AesCipher::<NR, NK, K, E>::cipher(&mut block, &key_sch);
+                let block = C::cipher(*to_arr(&xored).unwrap(), key.as_ref());
                 // println!("Cipher(p0 ^ p1)   - {block:?}");
-                block
+                agg.push(block.to_vec());
+                agg
             })
+            .into_iter()
+            .flatten()
             .collect();
         Ok(encrypted)
     }
 
-    fn decrypt<
-        C: AsRef<[u8]>,
-        T: AsRef<[u8]>,
-        const NR: usize,
-        const NK: usize,
-        const K: usize,
-        const E: usize,
-    >(
-        cipher_text: C,
+    fn decrypt<U: AsRef<[u8]>, T: AsRef<[u8]>>(
+        &self,
+        cipher_text: U,
         key: T,
-        _cipher: AesCipher<NR, NK, K, E>,
     ) -> anyhow::Result<Vec<u8>> {
-        let key = to_arr(key.as_ref())?;
-        let key_sch = AesCipher::<NR, NK, K, E>::key_expansion(key);
-
-        let decrypted = cipher_text
-            .as_ref()
+        let decrypted = [self.iv.as_slice(), cipher_text.as_ref()]
+            .concat()
             // get chunks of block size
-            .chunks_exact(16)
+            .chunks_exact(B)
+            .collect::<Vec<&[u8]>>()
+            .windows(2)
             // apply cbc mode
-            .fold(
-                Vec::with_capacity(cipher_text.as_ref().len() / 16),
-                |mut agg, c1| {
-                    // CBC Decrypt
-                    // P[i] = InvCipher(C[i]) ^ P[i-1]
+            .flat_map(|win| {
+                // CBC Decrypt
+                // P[i] = InvCipher(C[i]) ^ C[i-1]
 
-                    let iv = CBC_IV.to_vec();
-                    // get the P[i-1] or in case of i=0, the IV
-                    let p0 = agg.last().unwrap_or(&iv);
+                // get the P[i-1] or in case of i=0, the IV
+                let c0 = win[0];
+                let c1 = win[1];
 
-                    // println!("p0                - {p0:?}");
-                    // println!("c1                - {c1:?}");
+                // println!("p0                - {p0:?}");
+                // println!("c1                - {c1:?}");
 
-                    let mut block = *to_arr(c1).unwrap();
-                    // apply inv cipher
-                    AesCipher::<NR, NK, K, E>::inv_cipher(&mut block, &key_sch);
-                    // println!("InCipher(c1)      - {block:?}");
+                // apply inv cipher
+                let block = C::inv_cipher(*to_arr(c1).unwrap(), key.as_ref());
+                // println!("InCipher(c1)      - {block:?}");
 
-                    // xor chunk (c0 ^ InvCipher(c1))
-                    let xored = p0
-                        .iter()
-                        .zip(&block)
-                        .map(|(a, b)| a ^ b)
-                        .collect::<Vec<_>>();
-                    // println!("c0 ^ InCipher(c1) - {xored:?}");
+                // xor chunk (c0 ^ InvCipher(c1))
+                let xored = c0
+                    .iter()
+                    .zip(&block)
+                    .map(|(a, b)| a ^ b)
+                    .collect::<Vec<_>>();
+                // println!("c0 ^ InCipher(c1) - {xored:?}");
 
-                    agg.push(xored);
-                    agg
-                },
-            )
-            .into_iter()
-            .flatten()
+                xored
+            })
             .collect();
-        Ok(decrypted)
+
+        // remove padding
+        Ok(D::remove_pad::<B>(decrypted))
     }
 }
+
+// fn a() {
+//     let b = EcbMode;
+//     b.decrypt("cipher_text", "key");
+// }
