@@ -457,6 +457,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "set2"
+version = "0.1.0"
+dependencies = [
+ "aes 0.1.0",
+ "hex 0.1.0",
+ "naivebase64",
+]
+
+[[package]]
 name = "slab"
 version = "0.4.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
