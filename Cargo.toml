@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "packages/cli",
+    "packages/xor",
     "packages/common",
     "packages/hex",
     "packages/naivebase64",

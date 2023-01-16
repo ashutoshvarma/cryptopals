@@ -1,6 +1,6 @@
 use std::fs;
 
-use crate::c3::guess_single_xor_key;
+use xor::guess_single_xor_key;
 
 #[test]
 fn set1_c4_multiple_xor_key() {
