@@ -41,6 +41,17 @@ Utiltiy crates which are complelety functional on thier own to be used outside t
   - Break Repeating XOR Key
 
 
+## Progress
+- [x] Set 1 (Completed)
+- [ ] Set 2 (In progress)
+- [ ] Set 3
+- [ ] Set 4
+- [ ] Set 5
+- [ ] Set 6
+- [ ] Set 7
+- [ ] Set 8
+
+
 ## Run Challanges
 - To run all challenges and utility tests
   ```
